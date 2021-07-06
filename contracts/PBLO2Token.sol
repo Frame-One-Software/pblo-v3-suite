@@ -823,13 +823,13 @@ contract PBLO2Token is BEP20, Ownable {
 
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _tokenTransfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "BEP20: transfer amount exceeds allowance"));
+        _approve(sender, _msgSender(), allowance(sender, _msgSender()).sub(amount, "BEP20: transfer amount exceeds allowance"));
         return true;
     }
 
     function _tokenTransfer(address sender, address recipient, uint256 tAmount) private {
         require(recipient != address(0), "BEP20: transfer to the zero address");
-        require(amount > 0, "Transfer amount must be greater than zero");
+        require(tAmount > 0, "Transfer amount must be greater than zero");
 
         // is the total supply of token greater than 100 trillion
         // 10 trillion token will be burned every friday
@@ -875,8 +875,6 @@ contract PBLO2Token is BEP20, Ownable {
         } else {
             _transfer(sender, recipient, tAmount);
         }
-
-        return true;
     }
 
     function _transferWithTaxable(address sender, address recipient, uint256 tAmount) private {
@@ -923,12 +921,12 @@ contract PBLO2Token is BEP20, Ownable {
     }
 
     // FUNCTIONS to check the status of address in different lists
-    function isIncludedInFees(address account) public returns (bool) {
+    function isIncludedInFees(address account) public view returns (bool) {
         return _isIncludedInFees[account];
     }
 
-    function isExcludedFromFees(address account) public returns (bool) {
-        return _isIncludedInFees[account];
+    function isExcludedFromFees(address account) public view returns (bool) {
+        return _isExcludedInFees[account];
     }
 
     // UPDATE FEES

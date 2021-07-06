@@ -1,6 +1,7 @@
 import {Contracts, SignerDetails, Signers} from "../../types";
 import chai from "chai";
 import {BigNumber} from "ethers";
+import {isInExcludeList, isInIncludeList} from "./easyExcludeAndInclude";
 
 const expect = chai.expect;
 const assert = chai.assert;
@@ -53,18 +54,26 @@ async function checkBeforeAndAfter(this: { signers: Signers, contracts: Contract
 		burnFeePercent,
 		charityFeePercent,
 		marketingFeePercent,
-		fromAddressExcludedFromFee,
-		toAddressExcludedFromFee,
+		fromAddressInExcludedList,
+		fromAddressInIncludedList,
+		toAddressInExcludedList,
+		toAddressInIncludedList,
 	] = [
 		await this.contracts.tokenContract._burnFee(),
 		await this.contracts.tokenContract._charityFee(),
 		await this.contracts.tokenContract._marketingFee(),
-		await this.contracts.tokenContract.isExcludedFromFee(fromAddress),
-		await this.contracts.tokenContract.isExcludedFromFee(toAddress),
+		await isInExcludeList.bind(this)(fromAddress),
+		await isInIncludeList.bind(this)(fromAddress),
+		await isInExcludeList.bind(this)(toAddress),
+		await isInIncludeList.bind(this)(toAddress),
 	];
 
-	// check and see if this function had fees
-	if (fromAddressExcludedFromFee || toAddressExcludedFromFee) {
+	// if either address is in the exclude list, then do a normal transfer with no fees
+	// or if both addresses are not in the include list
+	if (
+		(fromAddressInExcludedList || toAddressInExcludedList) || // one address is in excluded
+		(!fromAddressInIncludedList && !toAddressInIncludedList) // both addresses are not included
+	) {
 		// there should be no taxes on the transaction, thus like a regular transaction
 		expect(toBalanceAfter).to.be.equal(toBalanceBefore.add(amount));
 		expect(fromBalanceAfter).to.be.equal(fromBalanceBefore.sub(amount));
@@ -80,7 +89,7 @@ async function checkBeforeAndAfter(this: { signers: Signers, contracts: Contract
 	const actualAmount = amount.sub(charityFee).sub(marketingFee).sub(burnFee);
 
 	// check the from balance
-	const expectedFromBalanceAfter = fromBalanceBefore.sub(actualAmount)
+	const expectedFromBalanceAfter = fromBalanceBefore.sub(amount)
 	expect(fromBalanceAfter).to.be.equal(expectedFromBalanceAfter);
 
 	// check the to balance

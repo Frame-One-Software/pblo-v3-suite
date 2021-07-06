@@ -3,44 +3,44 @@ import {Contracts, Signers} from "../../types";
 
 const expect = chai.expect;
 
-async function isInSuperExcludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
-	return this.contracts.tokenContract.isExcludedFromFee(address);
+function isInExcludeList(this: { signers: Signers, contracts: Contracts }, address: string): Promise<boolean> {
+	return this.contracts.tokenContract.isExcludedFromFees(address);
 }
 
-async function isInSuperIncludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
-	return this.contracts.tokenContract.isExcludedFromFee(address);
+function isInIncludeList(this: { signers: Signers, contracts: Contracts }, address: string): Promise<boolean> {
+	return this.contracts.tokenContract.isIncludedInFees(address);
 }
 
-async function addToSuperExcludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
-	await this.contracts.tokenContract.connect(this.signers.tokenCreator).includeInSuperExclude(address);
-	const excluded = await isExcludedFromFee.bind(this)(address);
-	expect(excluded).to.be.false;
-}
-
-async function removeFromSuperExcludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
-	await this.contracts.tokenContract.connect(this.signers.tokenCreator).removeSuperExclude(address);
-	const excluded = await isExcludedFromFee.bind(this)(address);
-	expect(excluded).to.be.false;
-}
-
-
-async function addToSuperIncludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
-	await this.contracts.tokenContract.connect(this.signers.tokenCreator).includeInFee(address);
-	const excluded = await isExcludedFromFee.bind(this)(address);
+async function addToExcludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
+	await this.contracts.tokenContract.connect(this.signers.tokenCreator).addToExcludeFromFeesList(address);
+	const excluded = await isInExcludeList.bind(this)(address);
 	expect(excluded).to.be.true;
 }
 
-async function removeFromSuperIncludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
-	await this.contracts.tokenContract.connect(this.signers.tokenCreator).includeInFee(address);
-	const excluded = await isExcludedFromFee.bind(this)(address);
-	expect(excluded).to.be.true;
+async function removeFromExcludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
+	await this.contracts.tokenContract.connect(this.signers.tokenCreator).removeFromExcludeFromFeesList(address);
+	const excluded = await isInExcludeList.bind(this)(address);
+	expect(excluded).to.be.false;
+}
+
+
+async function addToIncludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
+	await this.contracts.tokenContract.connect(this.signers.tokenCreator).addToIncludeInFeesList(address);
+	const included = await isInIncludeList.bind(this)(address);
+	expect(included).to.be.true;
+}
+
+async function removeFromIncludeList(this: { signers: Signers, contracts: Contracts }, address: string) {
+	await this.contracts.tokenContract.connect(this.signers.tokenCreator).removeFromIncludeInFeesList(address);
+	const included = await isInIncludeList.bind(this)(address);
+	expect(included).to.be.false;
 }
 
 export {
-	isInSuperExcludeList,
-	isInSuperIncludeList,
-	addToSuperExcludeList,
-	removeFromSuperExcludeList,
-	addToSuperIncludeList,
-	removeFromSuperIncludeList
+	isInExcludeList,
+	isInIncludeList,
+	addToExcludeList,
+	removeFromExcludeList,
+	addToIncludeList,
+	removeFromIncludeList
 }
