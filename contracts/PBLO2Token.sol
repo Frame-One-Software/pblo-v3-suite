@@ -792,12 +792,27 @@ contract PBLO2Token is BEP20, Ownable {
     uint256 private burnTokenEveryWeek = 10 * 10**12 * 10**18;
     uint256 private _burnAt;
 
+    // events for keeping track of changes
+    event ChangeBurnFee(uint256 value);
+    event ChangeCharityFee(uint256 value);
+    event ChangeMarketingFee(uint256 value);
+    event ChangeCharityWallet(address wallet);
+    event ChangeMarketingWallet(address wallet);
+    event ChangeBurnWallet(address wallet);
+    event AddedAddressToExcludeInFeesList(address account);
+    event RemovedAddressToExcludeInFeesList(address account);
+    event AddedAddressToIncludeInFeesList(address account);
+    event RemovedAddressToIncludeInFeesList(address account);
+
     constructor(
         address charityWallet,
         address marketingWallet,
         address burnWallet,
         uint256 totalSupply,
-        uint256 firstBurnDate
+        uint256 firstBurnDate,
+        uint256 burnFee,
+        uint256 charityFee,
+        uint256 marketingFee
     ) BEP20('PBLOToken', 'PBLO2') public {
 
         // set the addresses of the wallets
@@ -807,6 +822,17 @@ contract PBLO2Token is BEP20, Ownable {
 
         // set the first date of the burn
         _burnAt = firstBurnDate;
+
+        // set the fees
+        _burnFee = burnFee;
+        _charityFee = charityFee;
+        _marketingFee = marketingFee;
+
+        // add excluded addresses
+        addToExcludeFromFeesList(_charityWallet);
+        addToExcludeFromFeesList(_marketingWallet);
+        addToExcludeFromFeesList(_burnWallet);
+        addToExcludeFromFeesList(_msgSender()); // owner
 
         // mint the total supply amount to the owner/creator
         _mint(_msgSender(), totalSupply);
@@ -905,19 +931,23 @@ contract PBLO2Token is BEP20, Ownable {
     function addToExcludeFromFeesList(address account) public onlyOwner() {
         require(_isIncludedInFees[account] == false, "Cannot exclude an address that is included in fees.");
         _isExcludedInFees[account] = true;
+        AddedAddressToExcludeInFeesList(account);
     }
 
     function removeFromExcludeFromFeesList(address account) public onlyOwner() {
         _isExcludedInFees[account] = false;
+        RemovedAddressToExcludeInFeesList(account);
     }
 
     function addToIncludeInFeesList(address account) public onlyOwner() {
         require(_isExcludedInFees[account] == false, "Cannot include an address that is excluded in fees.");
         _isIncludedInFees[account] = true;
+        AddedAddressToIncludeInFeesList(account);
     }
 
     function removeFromIncludeInFeesList(address account) public onlyOwner() {
         _isIncludedInFees[account] = false;
+        RemovedAddressToIncludeInFeesList(account);
     }
 
     // FUNCTIONS to check the status of address in different lists
@@ -932,14 +962,17 @@ contract PBLO2Token is BEP20, Ownable {
     // UPDATE FEES
     function setMarketingFeePercent(uint256 marketingFee) external onlyOwner() {
         _marketingFee = marketingFee;
+        ChangeMarketingFee(burnFee);
     }
 
     function setCharityFeePercent(uint256 charityFee) external onlyOwner() {
         _charityFee = charityFee;
+        ChangeCharityFee(burnFee);
     }
 
     function setBurnFeePercent(uint256 burnFee) external onlyOwner() {
         _burnFee = burnFee;
+        ChangeBurnFee(burnFee);
     }
 
     // TAKE FEES

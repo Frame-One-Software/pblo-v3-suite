@@ -53,7 +53,10 @@ describe('Test Suite', function() {
 			this.signers.marketing.address.toString(),
 			this.signers.burn.address.toString(),
 			BigNumber.from("937360403035167733937298701775585"), // this is the current balance of PBLO
-			Date.now() + (1000 * 60 * 60 * 24 * 7) // 7 days
+			Date.now() + (1000 * 60 * 60 * 24 * 7), // 7 days
+			3,
+			3,
+			3
 		]);
 
 		// add the token contract to signers so it can easily be checked for its balance

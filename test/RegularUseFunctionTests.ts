@@ -83,11 +83,19 @@ export default function RegularUseFunctionTests() {
 
 	})
 
-	describe("Check statuses of adding and removing directly and the require statements", async function () {
+	it("Check statuses of adding and removing directly and the require statements", async function () {
 		// TODO
 	})
 
-	describe("Check transfers with includes and exclude variations", async function () {
+	it("Check transfers with includes and exclude variations", async function () {
+		// TODO
+	})
+
+	it("Check manual burns work", async function () {
+		// TODO
+	})
+
+	it("Check burns on transactions stop at 100 trillion", async function() {
 		// TODO
 	})
 
