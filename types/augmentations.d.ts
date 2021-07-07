@@ -10,5 +10,12 @@ declare module "mocha" {
     contracts: Contracts;
     totalSupplyBefore: BigNumber;
     signerDetailsBefore?: SignerDetails;
+    name?: string;
+    symbol?: string;
+    totalSupplyConstructor?: BigNumber;
+    burnFeeConstructor?: BigNumber;
+    charityFeeConstructor?: BigNumber;
+    marketingFeeConstructor?: BigNumber;
+    nextBurnDateConstructor?: BigNumber;
   }
 }

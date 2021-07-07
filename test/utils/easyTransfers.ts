@@ -7,7 +7,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signer-with-
 /**
  * a util for doing transfers with check and asserts afterwards
  */
-async function easyTransfer(this: { signers: Signers, contracts: Contracts }, fromKey: keyof Signers, toKey: keyof Signers, amount: BigNumber) {
+async function easyTransfer(this: { signers: Signers, contracts: Contracts }, fromKey: keyof Signers, toKey: keyof Signers, amount: BigNumber): Promise<void> {
 
 	// get details before
 	const detailsBefore = await getDetailsOfSigners.bind(this)();

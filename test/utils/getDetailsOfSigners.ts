@@ -1,6 +1,6 @@
 import {Contracts, SignerDetailAllowances, SignerDetails, Signers} from "../../types";
 
-async function getDetailsOfSigners(this: { signers: Signers, contracts: Contracts }) {
+async function getDetailsOfSigners(this: { signers: Signers, contracts: Contracts }): Promise<SignerDetails> {
 
 	// set up empty map
 	const details: SignerDetails = {} as SignerDetails;

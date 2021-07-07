@@ -35,6 +35,14 @@ describe('Test Suite', function() {
 		this.signers.marketing = signers[7];
 		this.signers.burn = signers[8];
 		console.table(this.signers);
+
+		this.totalSupplyConstructor = BigNumber.from("937360403035167733937298701775580"); // amount of the current PBLO contract, but replaced last number to be 0
+		this.name = "PBLOToken";
+		this.symbol = "PBLO2";
+		this.burnFeeConstructor = BigNumber.from(3);
+		this.charityFeeConstructor = BigNumber.from(3);
+		this.marketingFeeConstructor = BigNumber.from(3);
+		this.nextBurnDateConstructor = BigNumber.from(Date.now() + (1000 * 60 * 60 * 24 * 7));  // 7 days
 	});
 
 	/**
@@ -49,14 +57,16 @@ describe('Test Suite', function() {
 
 		// deploy the contracts
 		this.contracts.tokenContract = <PBLO2Token>await deployContract(this.signers.tokenCreator, tokenArtifact, [
+			this.name,
+			this.symbol,
 			this.signers.charity.address.toString(),
 			this.signers.marketing.address.toString(),
 			this.signers.burn.address.toString(),
-			BigNumber.from("937360403035167733937298701775585"), // this is the current balance of PBLO
-			Date.now() + (1000 * 60 * 60 * 24 * 7), // 7 days
-			3,
-			3,
-			3
+			this.totalSupplyConstructor,
+			this.nextBurnDateConstructor,
+			this.burnFeeConstructor,
+			this.charityFeeConstructor,
+			this.marketingFeeConstructor
 		]);
 
 		// add the token contract to signers so it can easily be checked for its balance
@@ -67,7 +77,7 @@ describe('Test Suite', function() {
 
 		// give tokens to burn address
 		const halfOfSupply = this.totalSupplyBefore.div(2);
-		await this.contracts.tokenContract.connect(this.signers.tokenCreator).transfer(this.signers.burn.address, halfOfSupply)
+		await this.contracts.tokenContract.connect(this.signers.tokenCreator).transfer(this.signers.burn.address, halfOfSupply);
 	})
 
 	describe('Test the default values of the contract', DefaultValuesTests.bind(this));

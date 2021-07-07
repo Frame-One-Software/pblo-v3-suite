@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import {BigNumber, Contract} from "ethers";
-import {LPBLOToken, WBNB, PancakeRouter, PancakeFactory, PBLO2Token} from "../typechain";
+import {WBNB, PancakeRouter, PancakeFactory, PBLO2Token} from "../typechain";
 
 export interface Signers {
 	tokenCreator: SignerWithAddress;

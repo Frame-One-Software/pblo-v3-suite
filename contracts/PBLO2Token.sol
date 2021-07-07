@@ -805,6 +805,8 @@ contract PBLO2Token is BEP20, Ownable {
     event RemovedAddressToIncludeInFeesList(address account);
 
     constructor(
+        string memory name,
+        string memory symbol,
         address charityWallet,
         address marketingWallet,
         address burnWallet,
@@ -813,7 +815,7 @@ contract PBLO2Token is BEP20, Ownable {
         uint256 burnFee,
         uint256 charityFee,
         uint256 marketingFee
-    ) BEP20('PBLOToken', 'PBLO2') public {
+    ) BEP20(name, symbol) public {
 
         // set the addresses of the wallets
         _charityWallet = charityWallet;
@@ -962,12 +964,12 @@ contract PBLO2Token is BEP20, Ownable {
     // UPDATE FEES
     function setMarketingFeePercent(uint256 marketingFee) external onlyOwner() {
         _marketingFee = marketingFee;
-        ChangeMarketingFee(burnFee);
+        ChangeMarketingFee(marketingFee);
     }
 
     function setCharityFeePercent(uint256 charityFee) external onlyOwner() {
         _charityFee = charityFee;
-        ChangeCharityFee(burnFee);
+        ChangeCharityFee(charityFee);
     }
 
     function setBurnFeePercent(uint256 burnFee) external onlyOwner() {
