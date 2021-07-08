@@ -2,7 +2,7 @@
 Before Friday, everybody needs to read over this document and know what is happening at each step.
 
 ## Step 1 (Get Real Balances 🏦)
-We will generate a list of holders from BSCScan, then we will run `npm run step1`. This will get the real balances of all users and save to a file
+We will generate a list of holders from BSCScan, then we will run `npm run step1`. This will get the real balances of all users and save to a file. Make sure this step is done after the burn or well before it.
 
 ## Step 2 (Adjust CSV 🧮)
 This CSV needs to be adjusted to ignore certain addresses, add the bonus and make sure the liqudityHolder gets the same number of tokens that are in the LP Token. This can be done by adjusting the names of the variables to the file outputs from step 1 and then running `npm run step2`. 
