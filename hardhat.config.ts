@@ -55,7 +55,7 @@ function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig 
 }
 
 const config: HardhatUserConfig = {
-	defaultNetwork: "hardhat",
+	defaultNetwork: "mainnet", // change this to test in different networks
 	gasReporter: {
 		currency: "CAD",
 		enabled: process.env.REPORT_GAS ? true : false,

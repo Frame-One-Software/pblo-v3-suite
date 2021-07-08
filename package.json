@@ -8,8 +8,7 @@
     "commit": "git-cz",
     "compile": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\"",
-    "deploy": "hardhat run scripts/deploy.ts",
-    "deploy:network": "hardhat run scripts/deploy.ts --network",
+    "step1": "hardhat run scripts/step1-getRealBalances.ts",
     "lint": "yarn run lint:sol && yarn run lint:ts && yarn run prettier:list-different",
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
@@ -21,7 +20,10 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@openzeppelin/contracts": "2.5.1"
+    "@openzeppelin/contracts": "2.5.1",
+    "csv-writer": "^1.6.0",
+    "neat-csv": "^6.0.1",
+    "progress": "^2.0.3"
   },
   "devDependencies": {
     "@types/chai-as-promised": "^7.1.4",
