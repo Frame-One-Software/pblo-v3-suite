@@ -2,7 +2,7 @@ import hre, {ethers, artifacts, run,} from "hardhat";
 import {Artifact} from "hardhat/types";
 import {deployContract} from "ethereum-waffle";
 import config from "../hardhat.config";
-import {PancakeFactory, PancakeRouter, WBNB} from "../typechain";
+import {PABLO, PancakeFactory, PancakeRouter, WBNB} from "../typechain";
 import { isNil } from "lodash";
 
 /**
@@ -15,11 +15,12 @@ import { isNil } from "lodash";
 export default async function main(): Promise<string> {
 
 	// set the variables
-	const tokenArtifactName = "PABLOAdjusted";
-	const marketingWallet = "";
-	const charityWallet = "";
-	const distributionWallet = "";
-	const burnAddress = "";
+	const tokenArtifactName = "PABLO";
+	const marketingWallet = "0x9656B113b4f54102d232FA5D87D1F13f5c522DAC";
+	const charityWallet = "0xf9693E7CC15bE6CEBFdCE8F78c82a495c68FDD87";
+	const equalizerWallet = "0x7ABb1a8bCee854Cd7eC51f4192Ac05FB40748D2d";
+	const burnWallet = "0x758075dabe5cab30c3fb3c3eb25273a1c8772f73";
+	const owner = "0x91f9B1Bd66eCD9479592A77E577ab21feb601FEC";
 
 	// get creator address
 	const signers = await ethers.getSigners();
@@ -27,7 +28,7 @@ export default async function main(): Promise<string> {
 
 	// if on hardhat network, deploy a pancake swap router
 	let pancakeRouter;
-	if (config.defaultNetwork === "hardhat" || config.defaultNetwork === "testnet") {
+	if (config.defaultNetwork === "hardhat") {
 		const pancakeCreator = signers[1];
 
 		// get the artifacts
@@ -56,33 +57,58 @@ export default async function main(): Promise<string> {
 		await pancakeRouter.deployed();
 	}
 
-	// create the artifact
+	// get the artifact for the token
 	const tokenArtifactArtifact: Artifact = await hre.artifacts.readArtifact(tokenArtifactName);
 
 	// create the token
 	const tokenArtifactConstructorArguments: any[] = !isNil(pancakeRouter) ? [pancakeRouter.address.toString()] : [];
-	console.log(`deploying token...`);
-	const token = await deployContract(creator, tokenArtifactArtifact, tokenArtifactConstructorArguments);
+	console.log(`deploying token...`, tokenArtifactConstructorArguments);
+	const token = <PABLO>await deployContract(creator, tokenArtifactArtifact, tokenArtifactConstructorArguments);
 	await token.deployed();
 	console.log(`token deployed to: `, token.address)
 	console.log(`token contract signer: `, await token.signer.getAddress());
 
 	// verify on bscscan
-	if (config.defaultNetwork !== "hardhat") {
-		await run("verify:verify", {
-			address: token.address,
-			constructorArguments: tokenArtifactConstructorArguments,
-		})
+	if (config.defaultNetwork !== "hardhat" && process.env.ETHER_SCAN_API_KEY) {
+		// try {
+		// 	console.log("verifying");
+		// 	await run("verify:verify", {
+		// 		address: token.address,
+		// 		constructorArguments: tokenArtifactConstructorArguments,
+		// 	})
+		// } catch (err) {
+		// 	console.error("verify error", err)
+		// }
 	}
 
-	// get pair address from pancake swap factory
-	// TODO this is unecessary if the lp pair is stored after creation, can just call the token contract
-	// const lpPairAddress = await pancakeSwapFactoryContract.connect(creator).getPair(WBNBAddress, token.address);
-	// console.log(`LP Pair address: `, lpPairAddress);
+	// get pair address from token
+	console.log(`getting the LP Pair...`)
+	const lpPairAddress = await token.connect(creator).uniswapV2Pair();
 
-	// add pair to include list
-	// TODO irrelvant if done in the constructor
-	// await token.connect(creator).addToIncludeList(lpPairAddress) // TODO verify function name and parameters from critical roll
+	// exclude lp pair from reward
+	console.log(`excluding the LP Pair from rewards (${lpPairAddress})...`)
+	const excludeLPairReceipt = await token.connect(creator).excludeFromReward(lpPairAddress);
+	await excludeLPairReceipt.wait();
+
+	// set the charity wallet
+	console.log("setting the charity wallet...")
+	const setCharityAddressReceipt = await token.connect(creator).setCharityAddress(charityWallet);
+	await setCharityAddressReceipt.wait();
+
+	// set the marketing wallet
+	console.log("setting the marketing wallet...")
+	const setMarketingAddressReceipt = await token.connect(creator).setMarketingAddress(marketingWallet);
+	await setMarketingAddressReceipt.wait();
+
+	// set the equalizer wallet
+	console.log("setting the equalizer wallet...")
+	const setEqualizerAddressReceipt = await token.connect(creator).setEqualizerAddress(equalizerWallet);
+	await setEqualizerAddressReceipt.wait();
+
+	// set the equalizer wallet
+	console.log("setting the burn wallet...")
+	const setBurnAddressReceipt = await token.connect(creator).setControlledBurnAddress(burnWallet);
+	await setBurnAddressReceipt.wait();
 
 	return token.address;
 }

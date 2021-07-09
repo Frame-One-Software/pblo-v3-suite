@@ -48,7 +48,7 @@ async function main(): Promise<void> {
 	// set the variables
 	const now = Date.now();
 	const oldPabloTokenAddress = "0xfF076c793be75975eFa9083067d72a6cCE7a03DB"; // mainnet
-	const BSCScanExportPath = `${__dirname}/../data/bscScan-july7.csv`;
+	const BSCScanExportPath = `${__dirname}/../data/bscScan-july9.csv`;
 	const progressCachePath = `${__dirname}/../data/airdropCSV-cache-${now}.csv`;
 	const completeAirdropPath = `${__dirname}/../data/airdropCSV-${now}.csv`;
 	const addressHeader = "HolderAddress";

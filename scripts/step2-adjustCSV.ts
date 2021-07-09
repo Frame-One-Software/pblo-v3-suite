@@ -36,7 +36,7 @@ async function main(): Promise<void> {
 	// set the variables
 	const now = Date.now();
 	const oldPabloTokenAddress = "0xfF076c793be75975eFa9083067d72a6cCE7a03DB"; // mainnet
-	const completeAirdropPath = `${__dirname}/../data/airdropCSV-1625780109933.csv`; // TODO replace with newest one
+	const completeAirdropPath = `${__dirname}/../data/airdropCSV-cache-1625867410302.csv`; // TODO replace with newest one
 	const completeAirdropWithAdjustmentsPath = `${__dirname}/../data/airdropWithAdjustmentsCSV-${now}.csv`;
 	const addressHeader = "HolderAddress";
 	const balanceHeader = "Balance";
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
 	]
 	const liquidityHolder = "0x1527664b2054c8442811B34B4E34a578fc0d0cF9";
 	const dxLockerAddress = "0x2d045410f002a95efcee67759a92518fa3fce677";
-	const marketingAddress = "0x9656b113b4f54102d232fa5d87d1f13f5c522dac";
+	const marketingAddress = "0x9656B113b4f54102d232FA5D87D1F13f5c522DAC";
 	const ignoredAddresses: string[] = [
 		liquidityHolder, // want to avoid giving this address more than it should
 		dxLockerAddress, // dxlocker

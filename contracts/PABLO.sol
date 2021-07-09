@@ -1,26 +1,3 @@
-/*
-##########################################################################################################################
-##########################################################################################################################
-
-Copyright Critical Roll
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-##########################################################################################################################
-##########################################################################################################################
-
-*/
-
 pragma solidity ^0.8.6;
 // SPDX-License-Identifier: Apache-2.0
 
@@ -118,7 +95,7 @@ library Address {
 
 
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-      return functionCall(target, data, "Address: low-level call failed");
+        return functionCall(target, data, "Address: low-level call failed");
     }
 
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
@@ -348,19 +325,19 @@ interface IUniswapV2Router01 {
         uint deadline
     ) external returns (uint[] memory amounts);
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
+    external
+    payable
+    returns (uint[] memory amounts);
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
+    external
+    returns (uint[] memory amounts);
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
+    external
+    returns (uint[] memory amounts);
     function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
+    external
+    payable
+    returns (uint[] memory amounts);
 
     function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
@@ -411,6 +388,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
 }
 
 contract PABLO is Context, IERC20, Ownable {
+
     using SafeMath for uint256;
     using Address for address;
 
@@ -419,7 +397,6 @@ contract PABLO is Context, IERC20, Ownable {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     mapping (address => bool) private _isIncludedInFee;
-    mapping (address => bool) private _isSuperExclude;
 
     mapping (address => bool) private _isExcluded;
     address[] private _excluded;
@@ -489,19 +466,19 @@ contract PABLO is Context, IERC20, Ownable {
         inSwapAndLiquify = false;
     }
 
-     /**
-     * @dev Deploy the contract, message sender will get the initial total supply minted.
-     * Create initial PancaceSwap V2 pair and router. Can be updated in setRouterAddress()
-     *
-     * The pair should always be excluded from reward and included in fees.
-     *
-     */
+    /**
+    * @dev Deploy the contract, message sender will get the initial total supply minted.
+    * Create initial PancaceSwap V2 pair and router. Can be updated in setRouterAddress()
+    *
+    * The pair should always be excluded from reward and included in fees.
+    *
+    */
     constructor () {
         _rOwned[_msgSender()] = _rTotal;
 
         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
-            .createPair(address(this), _uniswapV2Router.WETH());
+        .createPair(address(this), _uniswapV2Router.WETH());
 
         router = _uniswapV2Router;
         emit Transfer(address(0), _msgSender(), _tTotal);
@@ -614,24 +591,20 @@ contract PABLO is Context, IERC20, Ownable {
 
         bool takeFee = false;
 
-        if(
-            !_isSuperExclude[from] &&
-            !_isSuperExclude[to] &&
-            (_isIncludedInFee[from] || _isIncludedInFee[to])
-        ) {
+        if(_isIncludedInFee[from] || _isIncludedInFee[to]) {
             takeFee = true;
         }
 
         _tokenTransfer(from,to,amount,takeFee);
     }
 
-     /**
-     * @dev Handles all autoswap to BNB, adding to LP and distributing BNB shares to the set addresses.
-     *
-     * @param tokensToSwap the amount that will be swapped, will always be minimumTokensBeforeSwap
-     *
-     * NOTE: will never be called if swapAndLiquify = false!.
-     */
+    /**
+    * @dev Handles all autoswap to BNB, adding to LP and distributing BNB shares to the set addresses.
+    *
+    * @param tokensToSwap the amount that will be swapped, will always be minimumTokensBeforeSwap
+    *
+    * NOTE: will never be called if swapAndLiquify = false!.
+    */
     function swapAndLiquify(uint256 tokensToSwap) private lockTheSwap {
         uint256 liquidityTokenAmount = tokensToSwap.div(_convertToBNBFee).mul(_lpFee);
         reAddLiquidity(liquidityTokenAmount);
@@ -641,13 +614,13 @@ contract PABLO is Context, IERC20, Ownable {
     }
 
 
-     /**
-     * @dev Handles distribution of BNB to charity, marketing and equalizer
-     *
-     * @param amountBNB the amount of BNB that will be distributed
-     *
-     * NOTE: will never be called if swapAndLiquify = false!.
-     */
+    /**
+    * @dev Handles distribution of BNB to charity, marketing and equalizer
+    *
+    * @param amountBNB the amount of BNB that will be distributed
+    *
+    * NOTE: will never be called if swapAndLiquify = false!.
+    */
     function distributeBNBFee(uint256 amountBNB) private {
         uint256 totalFee = _convertToBNBFee.sub(_lpFee);
         uint256 _marketing = amountBNB.div(totalFee).mul(_marketingFee);
@@ -658,13 +631,13 @@ contract PABLO is Context, IERC20, Ownable {
         equalizerAddress.transfer(_equalizer);
     }
 
-     /**
-     * @dev Handles swaping tokens stored on the contract, half of the {amount} for BNB and adding it with the other hald of tokens to LP
-     *
-     * @param amount of tokens to swap and add to liquidity
-     *
-     * NOTE: will never be called if swapAndLiquify = false!.
-     */
+    /**
+    * @dev Handles swaping tokens stored on the contract, half of the {amount} for BNB and adding it with the other hald of tokens to LP
+    *
+    * @param amount of tokens to swap and add to liquidity
+    *
+    * NOTE: will never be called if swapAndLiquify = false!.
+    */
     function reAddLiquidity (uint256 amount) private {
         uint256 half = amount.div(2);
         uint256 otherHalf = amount.sub(half);
@@ -675,12 +648,12 @@ contract PABLO is Context, IERC20, Ownable {
         emit SwapAndLiquify(half, newBalance, otherHalf);
     }
 
-     /**
-     * @dev Handles selling of {tokenAmount}
-     *
-     * @param tokenAmount the amount of tokens to swap for BNB
-     *
-     */
+    /**
+    * @dev Handles selling of {tokenAmount}
+    *
+    * @param tokenAmount the amount of tokens to swap for BNB
+    *
+    */
     function swapTokensForEth(uint256 tokenAmount) private {
         address[] memory path = new address[](2);
         path[0] = address(this);
@@ -697,14 +670,14 @@ contract PABLO is Context, IERC20, Ownable {
     }
 
 
-     /**
-     * @dev Handles add {tokenAmount} and {BNBAmount} to LP
-     *
-     * @param tokenAmount, BNBAmount amount of tokens and BNB to be added to LP
-     *
-     * NOTE: LP tokens will be sent to the owner address.
-     *
-     */
+    /**
+    * @dev Handles add {tokenAmount} and {BNBAmount} to LP
+    *
+    * @param tokenAmount, BNBAmount amount of tokens and BNB to be added to LP
+    *
+    * NOTE: LP tokens will be sent to the owner address.
+    *
+    */
     function addLiquidity(uint256 tokenAmount, uint256 BNBAmount) private {
         _approve(address(this), address(router), tokenAmount);
         router.addLiquidityETH{value: BNBAmount}(
@@ -718,12 +691,12 @@ contract PABLO is Context, IERC20, Ownable {
     }
 
 
-     /**
-     * @dev wrapper for token transfer, will enable the fees on {takefee} = true
-     *
-     * @param takeFee flag for taking fee - initially no fee on any transfer except when includedInFee
-     *
-     */
+    /**
+    * @dev wrapper for token transfer, will enable the fees on {takefee} = true
+    *
+    * @param takeFee flag for taking fee - initially no fee on any transfer except when includedInFee
+    *
+    */
     function _tokenTransfer(address sender, address recipient, uint256 amount,bool takeFee) private {
         if(!takeFee)
             removeAllFee();
@@ -745,11 +718,11 @@ contract PABLO is Context, IERC20, Ownable {
     }
 
 
-     /**
-     * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
-     *
-     * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
-     */
+    /**
+    * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
+    *
+    * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
+    */
     function _transferStandard(address sender, address recipient, uint256 tAmount) private {
         uint256 currentRate =  _getRate();
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tRedistributionFee, uint256 tBurn, uint256 tConvertToBNB) = _getValues(tAmount);
@@ -761,11 +734,11 @@ contract PABLO is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-     /**
-     * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
-     *
-     * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
-     */
+    /**
+    * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
+    *
+    * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
+    */
     function _transferToExcluded(address sender, address recipient, uint256 tAmount) private {
         uint256 currentRate =  _getRate();
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tRedistributionFee, uint256 tBurn, uint256 tConvertToBNB) = _getValues(tAmount);
@@ -778,11 +751,11 @@ contract PABLO is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-     /**
-     * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
-     *
-     * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
-     */
+    /**
+    * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
+    *
+    * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
+    */
     function _transferFromExcluded(address sender, address recipient, uint256 tAmount) private {
         uint256 currentRate =  _getRate();
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tRedistributionFee, uint256 tBurn, uint256 tConvertToBNB) = _getValues(tAmount);
@@ -795,11 +768,11 @@ contract PABLO is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-     /**
-     * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
-     *
-     * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
-     */
+    /**
+    * @dev internal function to handle the token transfer, burn, redistribution and BNBtotal-fees
+    *
+    * NOTE: Rewards will be distributed differently on sending/receiving from/to excludedFromRewards addresses
+    */
     function _transferBothExcluded(address sender, address recipient, uint256 tAmount) private {
         uint256 currentRate =  _getRate();
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tRedistributionFee, uint256 tBurn, uint256 tConvertToBNB) = _getValues(tAmount);
@@ -813,9 +786,9 @@ contract PABLO is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-     /**
-     * @dev internal function will hanlde the changing total values for rewards and burn. {_tReflectionTotal} & {_tBurnTotal} are public counters to call the total amounts.
-     */
+    /**
+    * @dev internal function will hanlde the changing total values for rewards and burn. {_tReflectionTotal} & {_tBurnTotal} are public counters to call the total amounts.
+    */
     function _reflectFee(uint256 rFee, uint256 rBurn, uint256 tRedistributionFee, uint256 tBurn) private {
         _rTotal = _rTotal.sub(rFee).sub(rBurn);
         _tTotal = _tTotal.sub(tBurn);
@@ -823,16 +796,16 @@ contract PABLO is Context, IERC20, Ownable {
         _tBurnTotal = _tBurnTotal.add(tBurn);
     }
 
-     /**
-     * @dev Handles the manual controlled burns from the controlledBurnAddress
-     *
-     * Requirements:
-     *
-     * - `_burnAt` cannot be less than 7 days in the past.
-     * - `controlledBurnAddress` needs to own more than `controlledBurnWeeklyAmount` tokens.
-     *
-     * NOTE: Anybody can call this function anytime!
-     */
+    /**
+    * @dev Handles the manual controlled burns from the controlledBurnAddress
+    *
+    * Requirements:
+    *
+    * - `_burnAt` cannot be less than 7 days in the past.
+    * - `controlledBurnAddress` needs to own more than `controlledBurnWeeklyAmount` tokens.
+    *
+    * NOTE: Anybody can call this function anytime!
+    */
     function doControlledBurn() external {
         require(_burnAt <= block.timestamp, "Wait at least 7 days after each controlled burn!");
         require(balanceOf(controlledBurnAddress) >= controlledBurnWeeklyAmount, "There are no more tokens to burn left on the Controlled-Burn-Address!");
@@ -849,18 +822,18 @@ contract PABLO is Context, IERC20, Ownable {
         emit Burn(controlledBurnAddress, controlledBurnWeeklyAmount, _burnAt);
     }
 
-     /**
-     * @dev internal function to get the current transfer and reward values to {tAmount}
-     */
+    /**
+    * @dev internal function to get the current transfer and reward values to {tAmount}
+    */
     function _getValues(uint256 tAmount) private view returns (uint256, uint256, uint256, uint256, uint256, uint256, uint256) {
         (uint256 tTransferAmount, uint256 tRedistributionFee, uint256 tBurn, uint256 _tConvertToBNB) = _getTValues(tAmount);
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee) = _getRValues(tAmount, tRedistributionFee, tBurn, _tConvertToBNB, _getRate());
         return (rAmount, rTransferAmount, rFee, tTransferAmount, tRedistributionFee, tBurn, _tConvertToBNB);
     }
 
-     /**
-     * @dev internal function to get the current transfer values to {tAmount}
-     */
+    /**
+    * @dev internal function to get the current transfer values to {tAmount}
+    */
     function _getTValues(uint256 tAmount) private view returns (uint256, uint256, uint256, uint256) {
         uint256 tRedistributionFee = _takeFeeFromAmount(tAmount, _redistributionFee);
         uint256 tBurn = _takeFeeFromAmount(tAmount, _burnFee);
@@ -869,9 +842,9 @@ contract PABLO is Context, IERC20, Ownable {
         return (tTransferAmount, tRedistributionFee, tBurn, _tConvertToBNB);
     }
 
-     /**
-     * @dev internal function to get the current reward values to {tAmount} and all transfer fees
-     */
+    /**
+    * @dev internal function to get the current reward values to {tAmount} and all transfer fees
+    */
     function _getRValues(uint256 tAmount, uint256 tRedistributionFee, uint256 tBurn, uint256 _tConvertToBNB, uint256 currentRate) private pure returns (uint256, uint256, uint256) {
         uint256 rAmount = tAmount.mul(currentRate);
         uint256 rFee = tRedistributionFee.mul(currentRate);
@@ -881,20 +854,20 @@ contract PABLO is Context, IERC20, Ownable {
         return (rAmount, rTransferAmount, rFee);
     }
 
-     /**
-     * @dev internal function to get the current rate between tTotal and rTotal
-     */
+    /**
+    * @dev internal function to get the current rate between tTotal and rTotal
+    */
     function _getRate() private view returns(uint256) {
         (uint256 rSupply, uint256 tSupply) = _getCurrentSupply();
         return rSupply.div(tSupply);
     }
 
-     /**
-     * @dev internal function to retrieve the current supply regarding rewards.
-     *
-     * @return rSupply - current reflection total
-     * @return tSupply - current transfer total
-     */
+    /**
+    * @dev internal function to retrieve the current supply regarding rewards.
+    *
+    * @return rSupply - current reflection total
+    * @return tSupply - current transfer total
+    */
     function _getCurrentSupply() private view returns(uint256, uint256) {
         uint256 rSupply = _rTotal;
         uint256 tSupply = _tTotal;
@@ -907,12 +880,12 @@ contract PABLO is Context, IERC20, Ownable {
         return (rSupply, tSupply);
     }
 
-     /**
-     * @dev internal function to stack tokens on the contract itself
-     *
-     * @param _tConvertToBNB the amount of tokens to stack on the contract for later conversion to BNB
-     *
-     */
+    /**
+    * @dev internal function to stack tokens on the contract itself
+    *
+    * @param _tConvertToBNB the amount of tokens to stack on the contract for later conversion to BNB
+    *
+    */
     function _stackTokensToContract(uint256 _tConvertToBNB) private {
         uint256 currentRate =  _getRate();
         uint256 rConvertToBNB = _tConvertToBNB.mul(currentRate);
@@ -921,26 +894,26 @@ contract PABLO is Context, IERC20, Ownable {
             _tOwned[address(this)] = _tOwned[address(this)].add(_tConvertToBNB);
     }
 
-     /**
-     * @dev internal function takes {fee} as in % from {_amount}
-     *
-     * @param _amount to take the fee from
-     * @param fee as in % to take from {_amount}
-     *
-     * @return the delta from taking {fee}% from {_amount}
-     */
+    /**
+    * @dev internal function takes {fee} as in % from {_amount}
+    *
+    * @param _amount to take the fee from
+    * @param fee as in % to take from {_amount}
+    *
+    * @return the delta from taking {fee}% from {_amount}
+    */
     function _takeFeeFromAmount(uint256 _amount, uint256 fee) private pure returns (uint256) {
         return _amount.mul(fee).div(
             10**2
         );
     }
 
-     /**
-     * @dev internal function that will set all fees to 0
-     *
-     * NOTE: this will only ever happen for a single transfer, restoreAllFee() will be called after the transfer
-     *
-     */
+    /**
+    * @dev internal function that will set all fees to 0
+    *
+    * NOTE: this will only ever happen for a single transfer, restoreAllFee() will be called after the transfer
+    *
+    */
     function removeAllFee() private {
         if(_redistributionFee == 0 && _burnFee == 0 && _convertToBNBFee == 0) return;
 
@@ -953,26 +926,26 @@ contract PABLO is Context, IERC20, Ownable {
         _convertToBNBFee = 0;
     }
 
-     /**
-     * @dev internal function that will restore all fees to their last value
-     *
-     */
+    /**
+    * @dev internal function that will restore all fees to their last value
+    *
+    */
     function restoreAllFee() private {
         _redistributionFee = _previousRedistributionFee;
         _burnFee = _previousBurnFee;
         _convertToBNBFee = _previousBNBFee;
     }
 
-     /**
-     * @dev external function allows the owner to exclude addresses from rewards like any trading pair.
-     * This function should only be called to addresses that do not hold any tokens.
-     *
-     * @param account the address to be excluded
-     *
-     * Requirements:
-     * - `account` cannot be excluded already.
-     *
-     */
+    /**
+    * @dev external function allows the owner to exclude addresses from rewards like any trading pair.
+    * This function should only be called to addresses that do not hold any tokens.
+    *
+    * @param account the address to be excluded
+    *
+    * Requirements:
+    * - `account` cannot be excluded already.
+    *
+    */
     function excludeFromReward(address account) external onlyOwner() {
         require(!_isExcluded[account], "Account is already excluded");
         if(_rOwned[account] > 0) {
@@ -982,16 +955,16 @@ contract PABLO is Context, IERC20, Ownable {
         _excluded.push(account);
     }
 
-     /**
-     * @dev external function allows the owner to include a previously excluded address.
-     * This function should only be called to addresses that do not hold any tokens.
-     *
-     * @param account the address to be included
-     *
-     * Requirements:
-     * - `account` needs to be excluded.
-     *
-     */
+    /**
+    * @dev external function allows the owner to include a previously excluded address.
+    * This function should only be called to addresses that do not hold any tokens.
+    *
+    * @param account the address to be included
+    *
+    * Requirements:
+    * - `account` needs to be excluded.
+    *
+    */
     function includeInReward(address account) external onlyOwner() {
         require(_isExcluded[account], "Account is already excluded");
         for (uint256 i = 0; i < _excluded.length; i++) {
@@ -1007,160 +980,136 @@ contract PABLO is Context, IERC20, Ownable {
         }
     }
 
-     /**
-     * @dev public function to read if {account} is excludedFromReward
-     *
-     */
+    /**
+    * @dev public function to read if {account} is excludedFromReward
+    *
+    */
     function isExcludedFromReward(address account) public view returns (bool) {
         return _isExcluded[account];
     }
 
-     /**
-     * @dev public function to read if {account} is includedInFee
-     *
-     */
+    /**
+    * @dev public function to read if {account} is includedInFee
+    *
+    */
     function isIncludedInFee(address account) external view returns(bool) {
         return _isIncludedInFee[account];
     }
 
-     /**
-     * @dev owner only function to add {account} to addresses that need to pay fee
-     *
-     */
+    /**
+    * @dev owner only function to add {account} to addresses that need to pay fee
+    *
+    */
     function includeInFee(address account) external onlyOwner {
         _isIncludedInFee[account] = true;
     }
 
-     /**
-     * @dev owner only function to remove {account} from addresses that need to pay fee
-     *
-     */
+    /**
+    * @dev owner only function to remove {account} from addresses that need to pay fee
+    *
+    */
     function excludeFromFee(address account) external onlyOwner {
         _isIncludedInFee[account] = false;
     }
 
-     /**
-     * @dev public function to read if {account} is super excluded
-     *
-     */
-    function isSuperExcludedFromFee(address account) external view returns(bool) {
-        return _isSuperExclude[account];
-    }
-
-     /**
-     * @dev owner only function to add {account} to super excluded - this address will never pay any fee on any transfer
-     *
-     */
-    function includeInSuper(address account) external onlyOwner {
-        _isSuperExclude[account] = true;
-    }
-
-     /**
-     * @dev owner only function to remove {account} from super excluded
-     *
-     */
-    function excludeFromSuper(address account) external onlyOwner {
-        _isSuperExclude[account] = false;
-    }
-
-     /**
-     * @dev owner only function to set the charity address
-     *
-     * Emits an {UpdateOperationWallet} event.
-     *
-     */
+    /**
+    * @dev owner only function to set the charity address
+    *
+    * Emits an {UpdateOperationWallet} event.
+    *
+    */
     function setCharityAddress(address payable _charityAddress) external onlyOwner {
         address prevCharity = charityAddress;
         charityAddress = _charityAddress;
         emit UpdateOperationWallet(prevCharity, charityAddress, "charity");
     }
 
-     /**
-     * @dev owner only function to set the marketing address
-     *
-     * Emits an {UpdateOperationWallet} event.
-     *
-     */
+    /**
+    * @dev owner only function to set the marketing address
+    *
+    * Emits an {UpdateOperationWallet} event.
+    *
+    */
     function setMarketingAddress(address payable _marketingAddress) external onlyOwner {
         address prevMarketing = marketingAddress;
         marketingAddress = _marketingAddress;
         emit UpdateOperationWallet(prevMarketing, marketingAddress, "marketing");
     }
 
-     /**
-     * @dev owner only function to set the equalizer address
-     *
-     * Emits an {UpdateOperationWallet} event.
-     *
-     */
+    /**
+    * @dev owner only function to set the equalizer address
+    *
+    * Emits an {UpdateOperationWallet} event.
+    *
+    */
     function setEqualizerAddress(address payable _equalizerAddress) external onlyOwner {
         address prevEQ = equalizerAddress;
         equalizerAddress = _equalizerAddress;
         emit UpdateOperationWallet(prevEQ, equalizerAddress, "equalizer");
     }
 
-     /**
-     * @dev owner only function to set the controlled-burn  address
-     *
-     * Emits an {UpdateOperationWallet} event.
-     *
-     */
+    /**
+    * @dev owner only function to set the controlled-burn  address
+    *
+    * Emits an {UpdateOperationWallet} event.
+    *
+    */
     function setControlledBurnAddress(address _controlledBurnAddress) external onlyOwner {
         require(balanceOf(_controlledBurnAddress) == 0, "Cannot set controlled-burn address to a holding wallet");
         address prevCtrlBurn = controlledBurnAddress;
         controlledBurnAddress = _controlledBurnAddress;
         emit UpdateOperationWallet(prevCtrlBurn, controlledBurnAddress, "controlledBurn");
     }
-     /**
-     * @dev internal function that will update the total autoswap to BNB fees
-     *
-     */
+    /**
+    * @dev internal function that will update the total autoswap to BNB fees
+    *
+    */
     function setBNBFeeTotal() private {
         _convertToBNBFee = _lpFee.add(_marketingFee).add(_charityFee).add(_equalizerFee);
     }
 
-     /**
-     * @dev owner only function to set the redistribution fee
-     *
-     * @param redistributionFee the fee in %
-     *
-     * Requirements:
-     *
-     * - The sum of all fees cannot be higher than 25%
-     *
-     */
+    /**
+    * @dev owner only function to set the redistribution fee
+    *
+    * @param redistributionFee the fee in %
+    *
+    * Requirements:
+    *
+    * - The sum of all fees cannot be higher than 25%
+    *
+    */
     function setRedistributionFee(uint256 redistributionFee) external onlyOwner() {
         uint256 totalFees = redistributionFee.add(_marketingFee).add(_charityFee).add(_lpFee).add(_burnFee).add(_equalizerFee);
         require(totalFees <= 25, "Cannot set fees higher than 25%!");
         _redistributionFee = redistributionFee;
     }
 
-     /**
-     * @dev owner only function to set the burn fee
-     *
-     * @param burnFee the fee in %
-     *
-     * Requirements:
-     *
-     * - The sum of all fees cannot be higher than 25%
-     *
-     */
+    /**
+    * @dev owner only function to set the burn fee
+    *
+    * @param burnFee the fee in %
+    *
+    * Requirements:
+    *
+    * - The sum of all fees cannot be higher than 25%
+    *
+    */
     function setBurnFee(uint256 burnFee) external onlyOwner() {
         uint256 totalFees = burnFee.add(_marketingFee).add(_charityFee).add(_lpFee).add(_redistributionFee).add(_equalizerFee);
         require(totalFees <= 25, "Cannot set fees higher than 25%!");
         _burnFee = burnFee;
     }
 
-     /**
-     * @dev owner only function to set the re-add to LP fee
-     *
-     * @param lpFee the fee in %
-     *
-     * Requirements:
-     *
-     * - The sum of all fees cannot be higher than 25%
-     *
-     */
+    /**
+    * @dev owner only function to set the re-add to LP fee
+    *
+    * @param lpFee the fee in %
+    *
+    * Requirements:
+    *
+    * - The sum of all fees cannot be higher than 25%
+    *
+    */
     function setLpFee(uint256 lpFee) external onlyOwner() {
         uint256 totalFees = lpFee.add(_marketingFee).add(_charityFee).add(_burnFee).add(_redistributionFee).add(_equalizerFee);
         require(totalFees <= 25, "Cannot set fees higher than 25%!");
@@ -1168,16 +1117,16 @@ contract PABLO is Context, IERC20, Ownable {
         setBNBFeeTotal();
     }
 
-     /**
-     * @dev owner only function to set the marketing fee
-     *
-     * @param marketingFee the fee in %
-     *
-     * Requirements:
-     *
-     * - The sum of all fees cannot be higher than 25%
-     *
-     */
+    /**
+    * @dev owner only function to set the marketing fee
+    *
+    * @param marketingFee the fee in %
+    *
+    * Requirements:
+    *
+    * - The sum of all fees cannot be higher than 25%
+    *
+    */
     function setMarketingFee(uint256 marketingFee) external onlyOwner() {
         uint256 totalFees = marketingFee.add(_lpFee).add(_charityFee).add(_burnFee).add(_redistributionFee).add(_equalizerFee);
         require(totalFees <= 25, "Cannot set fees higher than 25%!");
@@ -1185,16 +1134,16 @@ contract PABLO is Context, IERC20, Ownable {
         setBNBFeeTotal();
     }
 
-     /**
-     * @dev owner only function to set the charity fee
-     *
-     * @param charityFee the fee in %
-     *
-     * Requirements:
-     *
-     * - The sum of all fees cannot be higher than 25%
-     *
-     */
+    /**
+    * @dev owner only function to set the charity fee
+    *
+    * @param charityFee the fee in %
+    *
+    * Requirements:
+    *
+    * - The sum of all fees cannot be higher than 25%
+    *
+    */
     function setCharityFee(uint256 charityFee) external onlyOwner() {
         uint256 totalFees = charityFee.add(_lpFee).add(_marketingFee).add(_burnFee).add(_redistributionFee).add(_equalizerFee);
         require(totalFees <= 25, "Cannot set fees higher than 25%!");
@@ -1202,16 +1151,16 @@ contract PABLO is Context, IERC20, Ownable {
         setBNBFeeTotal();
     }
 
-     /**
-     * @dev owner only function to set the equalizer fee
-     *
-     * @param equalizerFee the fee in %
-     *
-     * Requirements:
-     *
-     * - The sum of all fees cannot be higher than 25%
-     *
-     */
+    /**
+    * @dev owner only function to set the equalizer fee
+    *
+    * @param equalizerFee the fee in %
+    *
+    * Requirements:
+    *
+    * - The sum of all fees cannot be higher than 25%
+    *
+    */
     function setEqualizerFee(uint256 equalizerFee) external onlyOwner() {
         uint256 totalFees = equalizerFee.add(_lpFee).add(_marketingFee).add(_burnFee).add(_redistributionFee).add(_charityFee);
         require(totalFees <= 25, "Cannot set fees higher than 25%!");
@@ -1219,25 +1168,24 @@ contract PABLO is Context, IERC20, Ownable {
         setBNBFeeTotal();
     }
 
-
-     /**
-     * @dev public function to read the limiter on when the contract will auto convert to BNB
-     *
-     */
+    /**
+    * @dev public function to read the limiter on when the contract will auto convert to BNB
+    *
+    */
     function getTokenAutoSwapLimit() external view returns (uint256) {
         return minimumTokensBeforeSwap;
     }
 
-     /**
-     * @dev owner only function to set the maximum transfer amount
-     *
-     * @param maxTxPercent the amount of % of total supply
-     *
-     * Requirements:
-     *
-     * - `maxTxPercent` must be more than 0
-     *
-     */
+    /**
+    * @dev owner only function to set the maximum transfer amount
+    *
+    * @param maxTxPercent the amount of % of total supply
+    *
+    * Requirements:
+    *
+    * - `maxTxPercent` must be more than 0
+    *
+    */
     function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner() {
         require(maxTxPercent > 0, "Cannot set maximum transfer amount to 0!");
         _maxTxAmount = _tTotal.mul(maxTxPercent).div(
@@ -1245,50 +1193,49 @@ contract PABLO is Context, IERC20, Ownable {
         );
     }
 
-     /**
-     * @dev owner only function to set the limit of tokens to sell for BNB when reached
-     *
-     * @param _minimumTokensBeforeSwap the amount tokens when to sell from the contract
-     *
-     */
+    /**
+    * @dev owner only function to set the limit of tokens to sell for BNB when reached
+    *
+    * @param _minimumTokensBeforeSwap the amount tokens when to sell from the contract
+    *
+    */
     function setTokenAutoSwapLimit(uint256 _minimumTokensBeforeSwap) external onlyOwner() {
         minimumTokensBeforeSwap = _minimumTokensBeforeSwap;
     }
 
-     /**
-     * @dev owner only function to control if the autoswap to BNB should happen
-     *
-     * Emits an {SwapAndLiquifyEnabledUpdated} event.
-     *
-     */
+    /**
+    * @dev owner only function to control if the autoswap to BNB should happen
+    *
+    * Emits an {SwapAndLiquifyEnabledUpdated} event.
+    *
+    */
     function setSwapAndLiquifyEnabled(bool _enabled) external onlyOwner {
         swapAndLiquifyEnabled = _enabled;
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
 
-     /**
-     * @dev owner only function to set a new router address and create a new pair.
-     *
-     */
+    /**
+    * @dev owner only function to set a new router address and create a new pair.
+    *
+    */
     function setRouterAddress(address newRouter) external onlyOwner() {
         IUniswapV2Router02 _newPancakeRouter = IUniswapV2Router02(newRouter);
         uniswapV2Pair = IUniswapV2Factory(_newPancakeRouter.factory()).createPair(address(this), _newPancakeRouter.WETH());
         router = _newPancakeRouter;
     }
 
-
-     /**
-     * @dev public function to read the total amount of reflection reward tokens
-     *
-     */
+    /**
+    * @dev public function to read the total amount of reflection reward tokens
+    *
+    */
     function totalReflectionFees() external view returns (uint256) {
         return _tReflectionTotal;
     }
 
-     /**
-     * @dev public function to read the total amount of tokens burned
-     *
-     */
+    /**
+    * @dev public function to read the total amount of tokens burned
+    *
+    */
     function totalBurn() external view returns (uint256) {
         return _tBurnTotal;
     }

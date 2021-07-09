@@ -27,15 +27,15 @@ const readFileAsync = promisify(fs.readFile);
 async function main(): Promise<void> {
 
 	// set the variables
-	let tokenContractAddress = ""; //TODO replace with deployment from step 3
+	let tokenContractAddress = "0x7156890B5331F56DfE7a0f1c95a7d9981A9E2f51"; //TODO replace with deployment from step 3
 	const pbloAirdropArtifactName = "PBLOAirdrop";
-	const completeAirdropWithAdjustmentsPath = `${__dirname}/../data/airdropWithAdjustmentsCSV-1625791404110.csv`;
-	const chunkSize = 170
+	const completeAirdropWithAdjustmentsPath = `${__dirname}/../data/airdropWithAdjustmentsCSV-1625867789081.csv`;
+	const chunkSize = 140
 	const addressHeader = "HolderAddress";
 	const balanceHeader = "Balance";
 
 	// if on hardhat network run step 3
-	if (config.defaultNetwork === "hardhat" || config.defaultNetwork === "testnet") {
+	if (config.defaultNetwork === "hardhat") {
 		tokenContractAddress = await step3();
 	}
 
@@ -73,10 +73,10 @@ async function main(): Promise<void> {
 
 	// verify the contract, because it looks nice
 	if (config.defaultNetwork !== "hardhat") {
-		await run("verify:verify", {
-			address: pbloAirdrop.address,
-			constructorArguments: pbloAirdropArguments,
-		})
+		// await run("verify:verify", {
+		// 	address: pbloAirdrop.address,
+		// 	constructorArguments: pbloAirdropArguments,
+		// })
 	}
 
 	console.log("setting allowance to the total supply...")
@@ -108,7 +108,7 @@ async function main(): Promise<void> {
 		const receipt = await transaction.wait();
 
 		// progress the progress bar
-		progressBar.interrupt(`Addresses from '${addresses[0]}' to '${addresses[addresses.length - 1]}' have been sent. (${formatEther(receipt.gasUsed)} bnb used for gas)`)
+		progressBar.interrupt(`Addresses from '${addresses[0]}' to '${addresses[addresses.length - 1]}' have been sent.`)
 
 		// verify the transactions
 		const promises = addresses.map((address, i) => {
@@ -118,7 +118,7 @@ async function main(): Promise<void> {
 			async function verifyBalance(): Promise<string | void> {
 
 				// check to see if it is the creator
-				if (address === creator.address.toString()) {
+				if (address.toLowerCase() === creator.address.toString().toLowerCase()) {
 					progressBar.interrupt(`'${address}' could not be verified because it is the creator. Please check manually afterward.`);
 					return;
 				}
@@ -133,7 +133,7 @@ async function main(): Promise<void> {
 				if (!amount.eq(balance)) {
 
 					// check and see if it is one of the addresses that are multiple in the list
-					const timesInList = addresses.reduce((acc, v) => v === address ? acc + 1 : acc, 0)
+					const timesInList = addresses.reduce((acc, v) => v.toLowerCase() === address.toLowerCase() ? acc + 1 : acc, 0)
 					if (timesInList > 1) {
 						progressBar.interrupt(`'${address}' could not be verified because it is in the list ${timesInList} times. Please check manually afterward.`);
 						return;
