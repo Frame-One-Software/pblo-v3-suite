@@ -55,7 +55,7 @@ function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig 
 }
 
 const config: HardhatUserConfig = {
-	defaultNetwork: "mainnet", // change this to test in different networks
+	defaultNetwork: "hardhat", // change this to test in different networks
 	gasReporter: {
 		currency: "CAD",
 		enabled: process.env.REPORT_GAS ? true : false,
@@ -64,11 +64,10 @@ const config: HardhatUserConfig = {
 	},
 	networks: {
 		hardhat: {
-			accounts: {
-				mnemonic,
-			},
 			allowUnlimitedContractSize: true,
 			chainId: chainIds.hardhat,
+			// gasPrice: 20000000000,
+			accounts: {mnemonic: mnemonic}
 		},
 		goerli: createTestnetConfig("goerli"),
 		kovan: createTestnetConfig("kovan"),
@@ -78,7 +77,6 @@ const config: HardhatUserConfig = {
 			url: "https://data-seed-prebsc-1-s1.binance.org:8545",
 			chainId: 97,
 			gasPrice: 20000000000,
-			accounts: {mnemonic: mnemonic}
 		},
 		mainnet: {
 			url: "https://bsc-dataseed.binance.org/",
@@ -115,6 +113,9 @@ const config: HardhatUserConfig = {
 			},
 			{
 				version: "0.7.0",
+			},
+			{
+				version: "0.8.6",
 			}
 		],
 		settings: {
@@ -126,8 +127,8 @@ const config: HardhatUserConfig = {
 			// You should disable the optimizer when debugging
 			// https://hardhat.org/hardhat-network/#solidity-optimizer-support
 			optimizer: {
-				enabled: true,
-				runs: 10000000,
+				enabled: false,
+				runs: 20,
 			},
 		},
 	},
