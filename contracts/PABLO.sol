@@ -402,7 +402,7 @@ contract PABLO is Context, IERC20, Ownable {
     address[] private _excluded;
 
     uint256 private constant MAX = ~uint256(0);
-    uint256 private _tTotal = 1 * 10**15 * 10**18;
+    uint256 private _tTotal = 1112207055887174849251416613421609;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
 
     uint256 private _tReflectionTotal;
